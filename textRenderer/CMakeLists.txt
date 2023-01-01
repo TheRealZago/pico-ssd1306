@@ -1,4 +1,4 @@
-add_library(ssd1306_textRenderer
+add_library(oled_textRenderer
         TextRenderer.cpp
         5x8_font.h
         8x8_font.h
@@ -6,7 +6,7 @@ add_library(ssd1306_textRenderer
         16x32_font.h
         )
 
-target_link_libraries(ssd1306_textRenderer
+target_link_libraries(oled_textRenderer
         hardware_i2c
         pico_stdlib
         )

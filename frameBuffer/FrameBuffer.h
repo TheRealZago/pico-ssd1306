@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef SSD1306_FRAMEBUFFER_H
-#define SSD1306_FRAMEBUFFER_H
+#ifndef OLED_FRAMEBUFFER_H
+#define OLED_FRAMEBUFFER_H
 
 #include <string.h>
 
@@ -13,7 +11,8 @@
 
 /// \brief Framebuffer class contains a pointer to buffer and functions for interacting with it
 class FrameBuffer {
-    unsigned char * buffer;
+    unsigned char* buffer;
+
 public:
     /// Constructs frame buffer and allocates memory for buffer
     FrameBuffer();
@@ -40,14 +39,13 @@ public:
     void byteXOR(int n, unsigned char byte);
 
     /// Replaces pointer with one pointing to a different buffer
-    void setBuffer(unsigned char * new_buffer);
+    void setBuffer(unsigned char* new_buffer);
 
     /// Zeroes out the buffer aka set buffer to all 0
     void clear();
 
     /// Returns a pointer to the buffer
-    unsigned char * get();
+    unsigned char* get();
 };
 
-
-#endif //SSD1306_FRAMEBUFFER_H
+#endif // OLED_FRAMEBUFFER_H

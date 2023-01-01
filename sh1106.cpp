@@ -1,48 +1,12 @@
-#include "ssd1306.hpp"
+#include "sh1106.hpp"
 
 namespace pico_oled {
-SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
+SH1106::SH1106(i2c_inst* i2CInst, uint16_t Address, Size size)
 {
-    OLED::OLED(i2CInst, Address, Type::SSD1306, size);
+    OLED::OLED(i2CInst, Address, Type::SH1106, size);
 
     // this is a list of setup commands for the display
     uint8_t setup[] = {
-        SSD1306_DISPLAY_OFF,
-        SSD1306_LOWCOLUMN,
-        SSD1306_HIGHCOLUMN,
-        SSD1306_STARTLINE,
-
-        SSD1306_MEMORYMODE,
-        SSD1306_MEMORYMODE_HORZONTAL,
-
-        SSD1306_CONTRAST,
-        0xFF,
-
-        SSD1306_INVERTED_OFF,
-
-        SSD1306_MULTIPLEX,
-        63,
-
-        SSD1306_DISPLAYOFFSET,
-        0x00,
-
-        SSD1306_DISPLAYCLOCKDIV,
-        0x80,
-
-        SSD1306_PRECHARGE,
-        0x22,
-
-        SSD1306_COMPINS,
-        0x12,
-
-        SSD1306_VCOMDETECT,
-        0x40,
-
-        SSD1306_CHARGEPUMP,
-        0x14,
-
-        SSD1306_DISPLAYALL_ON_RESUME,
-        SSD1306_DISPLAY_ON
     };
 
     // send each one of the setup commands
