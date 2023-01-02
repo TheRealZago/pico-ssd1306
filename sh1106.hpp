@@ -52,6 +52,7 @@ public:
     /// \param size - display size. Acceptable values W128xH32 or W128xH64
     SH1106(i2c_inst* i2CInst, uint16_t Address, Size size);
 
+    bool IsConnected() override;
     void setPixel(int16_t x, int16_t y, WriteMode mode) override;
     void sendBuffer() override;
     void setOrientation(bool orientation) override;

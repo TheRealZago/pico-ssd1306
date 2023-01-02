@@ -68,6 +68,8 @@ public:
         this->frameBuffer = FrameBuffer();
     }
 
+    virtual bool IsConnected() = 0;
+
     /// \brief Set pixel operates frame buffer
     /// x is the x position of pixel you want to change. values 0 - 127
     /// y is the y position of pixel you want to change. values 0 - 31 or 0 - 63

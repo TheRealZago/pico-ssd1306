@@ -52,6 +52,15 @@ SH1106::SH1106(i2c_inst* i2CInst, uint16_t Address, Size size)
     this->sendBuffer();
 }
 
+bool SH1106::IsConnected() {
+    uint8_t data[2] = { 0x00, SH1106_DISPLAY_ON };
+    int rc = i2c_write_timeout_us(this->i2CInst, this->address, data, 2, false, 50000);
+    if (rc == PICO_ERROR_GENERIC || rc == PICO_ERROR_TIMEOUT) {
+        return false;
+    }
+    return true;
+}
+
 void SH1106::setPixel(int16_t x, int16_t y, WriteMode mode)
 {
     // return if position out of bounds
@@ -98,7 +107,7 @@ void SH1106::sendBuffer()
     memcpy(data + 1, frameBuffer.get(), FRAMEBUFFER_SIZE);
 
     // send data to device
-    i2c_write_blocking(this->i2CInst, this->address, data, FRAMEBUFFER_SIZE + 1, false);
+    i2c_write_timeout_us(this->i2CInst, this->address, data, FRAMEBUFFER_SIZE + 1, false, 50000);
 }
 
 void SH1106::setOrientation(bool orientation)
@@ -123,7 +132,7 @@ void SH1106::cmd(uint8_t command)
 {
     // 0x00 is a byte indicating to SH1106 that a command is being sent
     uint8_t data[2] = { 0x00, command };
-    i2c_write_blocking(this->i2CInst, this->address, data, 2, false);
+    i2c_write_timeout_us(this->i2CInst, this->address, data, 2, false, 50000);
 }
 
 void SH1106::setContrast(unsigned char contrast)
