@@ -1,5 +1,4 @@
 add_library(pico_oled
-        oled.cpp
         ssd1306.cpp
         sh1106.cpp
         frameBuffer/FrameBuffer.cpp

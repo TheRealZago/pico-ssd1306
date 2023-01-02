@@ -46,7 +46,7 @@ protected:
     uint8_t height = 64;
     bool inverted = false;
 
-    virtual void cmd(uint8_t command);
+    virtual void cmd(uint8_t command) = 0;
 
 public:
     /// \brief Generic OLED constructor for property setting
@@ -54,7 +54,19 @@ public:
     /// \param Address - display i2c address. usually for 128x32 0x3C and for 128x64 0x3D
     /// \param type - display type. Acceptable values SSD1306 or SH1106
     /// \param size - display size. Acceptable values W128xH32 or W128xH64
-    OLED(i2c_inst* i2CInst, uint16_t Address, Type type, Size size);
+    explicit OLED(i2c_inst* i2CInst, uint16_t Address, Type type, Size size) {
+        // Set class instanced variables
+        this->i2CInst = i2CInst;
+        this->address = Address;
+        this->size = size;
+
+        if (size == Size::W128xH32) {
+            this->height = 32;
+        }
+
+        // create a frame buffer
+        this->frameBuffer = FrameBuffer();
+    }
 
     /// \brief Set pixel operates frame buffer
     /// x is the x position of pixel you want to change. values 0 - 127
@@ -62,10 +74,10 @@ public:
     /// \param x - position of pixel you want to change. values 0 - 127
     /// \param y - position of pixel you want to change. values 0 - 31 or 0 - 63
     /// \param mode - mode describes setting behavior. See WriteMode doc for more information
-    virtual void setPixel(int16_t x, int16_t y, WriteMode mode = WriteMode::ADD);
+    virtual void setPixel(int16_t x, int16_t y, WriteMode mode = WriteMode::ADD) = 0;
 
     /// \brief Sends frame buffer to display so that it updated
-    virtual void sendBuffer();
+    virtual void sendBuffer() = 0;
 
     /// \brief Adds bitmap image to frame buffer
     /// \param anchorX - sets start point of where to put the image on the screen
@@ -99,7 +111,7 @@ public:
 
     /// \brief Flips the display
     /// \param orientation - 0 for not flipped, 1 for flipped display
-    virtual void setOrientation(bool orientation);
+    virtual void setOrientation(bool orientation) = 0;
 
     /// \brief Clears frame buffer aka set all bytes to 0
     inline void clear()
@@ -108,11 +120,11 @@ public:
     }
 
     /// \brief Inverts screen on hardware level. Way more efficient than setting buffer to all ones and then using WriteMode subtract.
-    virtual void invertDisplay();
+    virtual void invertDisplay() = 0;
 
     /// \brief Sets display contrast according to ssd1306 documentation
     /// \param contrast - accepted values of 0 to 255 to set the contrast
-    virtual void setContrast(unsigned char contrast);
+    virtual void setContrast(unsigned char contrast) = 0;
 };
 
 }

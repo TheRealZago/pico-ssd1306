@@ -2,8 +2,8 @@
 
 namespace pico_oled {
 SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
+    : OLED::OLED(i2CInst, Address, Type::SSD1306, size)
 {
-    OLED::OLED(i2CInst, Address, Type::SSD1306, size);
 
     // this is a list of setup commands for the display
     uint8_t setup[] = {
@@ -16,7 +16,7 @@ SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
         SSD1306_MEMORYMODE_HORZONTAL,
 
         SSD1306_CONTRAST,
-        0xFF,
+        0x7F,
 
         SSD1306_INVERTED_OFF,
 
