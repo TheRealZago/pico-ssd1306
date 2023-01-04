@@ -1,9 +1,13 @@
 #include "ssd1306.hpp"
 
+#define SSD1306_FULL_BUFFER 1024
+
 namespace pico_oled {
 SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
     : OLED::OLED(i2CInst, Address, Type::SSD1306, size)
 {
+    // create a frame buffer
+    this->frameBuffer = new FrameBuffer(SSD1306_FULL_BUFFER);
 
     // this is a list of setup commands for the display
     uint8_t setup[] = {
@@ -88,11 +92,11 @@ void SSD1306::setPixel(int16_t x, int16_t y, WriteMode mode)
 
     // check the write mode and manipulate the frame buffer
     if (mode == WriteMode::ADD) {
-        this->frameBuffer.byteOR(x + (y / 8) * this->width, byte);
+        this->frameBuffer->byteOR(x + (y / 8) * this->width, byte);
     } else if (mode == WriteMode::SUBTRACT) {
-        this->frameBuffer.byteAND(x + (y / 8) * this->width, ~byte);
+        this->frameBuffer->byteAND(x + (y / 8) * this->width, ~byte);
     } else if (mode == WriteMode::INVERT) {
-        this->frameBuffer.byteXOR(x + (y / 8) * this->width, byte);
+        this->frameBuffer->byteXOR(x + (y / 8) * this->width, byte);
     }
 }
 
@@ -106,15 +110,15 @@ void SSD1306::sendBuffer()
     this->cmd(127);
 
     // create a temporary buffer of size of buffer plus 1 byte for startline command aka 0x40
-    unsigned char data[FRAMEBUFFER_SIZE + 1];
+    unsigned char data[SSD1306_FULL_BUFFER + 1];
 
     data[0] = SSD1306_STARTLINE;
 
     // copy framebuffer to temporary buffer
-    memcpy(data + 1, frameBuffer.get(), FRAMEBUFFER_SIZE);
+    memcpy(data + 1, frameBuffer->get(), SSD1306_FULL_BUFFER);
 
     // send data to device
-    i2c_write_timeout_us(this->i2CInst, this->address, data, FRAMEBUFFER_SIZE + 1, false, 50000);
+    i2c_write_timeout_us(this->i2CInst, this->address, data, SSD1306_FULL_BUFFER + 1, false, 50000);
 }
 
 void SSD1306::setOrientation(bool orientation)

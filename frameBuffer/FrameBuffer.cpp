@@ -1,14 +1,15 @@
 #include "FrameBuffer.h"
 
-FrameBuffer::FrameBuffer()
+FrameBuffer::FrameBuffer(const size_t buffSz)
 {
-    this->buffer = new unsigned char[FRAMEBUFFER_SIZE];
+    this->bufferSize = buffSz;
+    this->buffer = new unsigned char[bufferSize];
 }
 
 void FrameBuffer::byteOR(int n, unsigned char byte)
 {
     // return if index outside 0 - buffer length - 1
-    if (n > (FRAMEBUFFER_SIZE - 1))
+    if (n > (bufferSize - 1))
         return;
     this->buffer[n] |= byte;
 }
@@ -16,7 +17,7 @@ void FrameBuffer::byteOR(int n, unsigned char byte)
 void FrameBuffer::byteAND(int n, unsigned char byte)
 {
     // return if index outside 0 - buffer length - 1
-    if (n > (FRAMEBUFFER_SIZE - 1))
+    if (n > (bufferSize - 1))
         return;
     this->buffer[n] &= byte;
 }
@@ -24,7 +25,7 @@ void FrameBuffer::byteAND(int n, unsigned char byte)
 void FrameBuffer::byteXOR(int n, unsigned char byte)
 {
     // return if index outside 0 - buffer length - 1
-    if (n > (FRAMEBUFFER_SIZE - 1))
+    if (n > (bufferSize - 1))
         return;
     this->buffer[n] ^= byte;
 }
@@ -37,7 +38,7 @@ void FrameBuffer::setBuffer(unsigned char* new_buffer)
 void FrameBuffer::clear()
 {
     // zeroes out the buffer via memset function from string library
-    memset(this->buffer, 0, FRAMEBUFFER_SIZE);
+    memset(this->buffer, 0, bufferSize);
 }
 
 unsigned char* FrameBuffer::get()

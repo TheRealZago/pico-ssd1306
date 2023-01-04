@@ -3,19 +3,16 @@
 
 #include <string.h>
 
-/// \brief Set frame buffer to 1024 bytes, witch is 128*64 / 8
-///
-/// For 128x32 displays it's still 1024 due to how memory mapping works on ssd1306.
-/// This is explained in readme.md
-#define FRAMEBUFFER_SIZE 1024
-
 /// \brief Framebuffer class contains a pointer to buffer and functions for interacting with it
 class FrameBuffer {
-    unsigned char* buffer;
+    size_t bufferSize { 0 };
+    unsigned char* buffer { nullptr };
 
 public:
     /// Constructs frame buffer and allocates memory for buffer
-    FrameBuffer();
+    FrameBuffer(const size_t buffSz);
+
+    inline size_t GetBufferSize() const { return bufferSize; }
 
     /// \brief Performs OR logical operation on selected and provided byte
     ///

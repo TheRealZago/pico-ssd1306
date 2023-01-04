@@ -41,7 +41,7 @@ protected:
     uint16_t address = 0x00;
     Type type;
     Size size;
-    FrameBuffer frameBuffer;
+    FrameBuffer* frameBuffer { nullptr };
     uint8_t width = 128;
     uint8_t height = 64;
     bool inverted = false;
@@ -63,9 +63,6 @@ public:
         if (size == Size::W128xH32) {
             this->height = 32;
         }
-
-        // create a frame buffer
-        this->frameBuffer = FrameBuffer();
     }
 
     virtual bool IsConnected() = 0;
@@ -108,7 +105,7 @@ public:
     /// \param buffer - pointer to a new buffer
     inline void setBuffer(unsigned char* buffer)
     {
-        this->frameBuffer.setBuffer(buffer);
+        this->frameBuffer->setBuffer(buffer);
     }
 
     /// \brief Flips the display
@@ -118,7 +115,7 @@ public:
     /// \brief Clears frame buffer aka set all bytes to 0
     inline void clear()
     {
-        this->frameBuffer.clear();
+        this->frameBuffer->clear();
     }
 
     /// \brief Inverts screen on hardware level. Way more efficient than setting buffer to all ones and then using WriteMode subtract.
