@@ -43,21 +43,21 @@ private:
     };
 
 protected:
-    void cmd(uint8_t command) override;
+    void cmd(const uint8_t& command) final;
 
 public:
     /// \brief SH1106 constructor initialized display and sets all required registers for operation
     /// \param i2CInst - i2c instance. Either i2c0 or i2c1
     /// \param Address - display i2c address. usually for 128x32 0x3C and for 128x64 0x3D
     /// \param size - display size. Acceptable values W128xH32 or W128xH64
-    SH1106(i2c_inst* i2CInst, uint16_t Address, Size size);
+    SH1106(i2c_inst* i2CInst, uint8_t Address, Size size);
 
-    bool IsConnected() override;
-    void setPixel(int16_t x, int16_t y, WriteMode mode) override;
-    void sendBuffer() override;
-    void setOrientation(bool orientation) override;
-    void invertDisplay() override;
-    void setContrast(unsigned char contrast) override;
+    bool IsConnected() final;
+    void setPixel(const uint8_t x, const uint8_t y, const WriteMode mode) final;
+    void sendBuffer() final;
+    void setOrientation(bool orientation) final;
+    void invertDisplay() final;
+    void setContrast(const uint8_t contrast) final;
 };
 
 }

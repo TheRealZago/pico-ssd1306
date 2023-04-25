@@ -3,12 +3,14 @@
 
 #include "frameBuffer/FrameBuffer.h"
 #include "hardware/i2c.h"
-#include <cstring>
 #include <cstdint>
+#include <cstring>
+#include <memory>
 
 namespace pico_oled {
+
 /// \enum pico_oled::Type
-enum class Type {
+enum class Type : uint8_t {
     /// Display type SSD1306
     SSD1306,
     /// Display type SH1106
@@ -16,7 +18,7 @@ enum class Type {
 };
 
 /// \enum pico_oled::Size
-enum class Size {
+enum class Size : uint8_t {
     /// Display size W128xH64
     W128xH64,
     /// Display size W128xH32
@@ -24,7 +26,7 @@ enum class Size {
 };
 
 /// \enum pico_oled::WriteMode
-enum class WriteMode : const unsigned char {
+enum class WriteMode : uint8_t {
     /// sets pixel on regardless of its state
     ADD = 0,
     /// sets pixel off regardless of its state
@@ -37,16 +39,16 @@ enum class WriteMode : const unsigned char {
 /// \brief OLED class represents underlying i2c connection to display
 class OLED {
 protected:
-    i2c_inst* i2CInst = nullptr;
-    uint16_t address = 0x00;
+    i2c_inst* i2CInst { nullptr };
+    uint8_t address { 0x00 };
     Type type;
     Size size;
-    FrameBuffer* frameBuffer { nullptr };
-    uint8_t width = 128;
-    uint8_t height = 64;
-    bool inverted = false;
+    std::unique_ptr<FrameBuffer> frameBuffer { nullptr };
+    uint8_t width { 128 };
+    uint8_t height { 64 };
+    bool inverted { false };
 
-    virtual void cmd(uint8_t command) = 0;
+    virtual void cmd(const uint8_t& command) = 0;
 
 public:
     /// \brief Generic OLED constructor for property setting
@@ -54,12 +56,8 @@ public:
     /// \param Address - display i2c address. usually for 128x32 0x3C and for 128x64 0x3D
     /// \param type - display type. Acceptable values SSD1306 or SH1106
     /// \param size - display size. Acceptable values W128xH32 or W128xH64
-    explicit OLED(i2c_inst* i2CInst, uint16_t Address, Type type, Size size) {
-        // Set class instanced variables
-        this->i2CInst = i2CInst;
-        this->address = Address;
-        this->size = size;
-
+    explicit OLED(i2c_inst* i2CInst, uint8_t Address, Type type, Size size) : i2CInst(i2CInst), address(Address), type(type), size(size)
+    {
         if (size == Size::W128xH32) {
             this->height = 32;
         }
@@ -73,7 +71,7 @@ public:
     /// \param x - position of pixel you want to change. values 0 - 127
     /// \param y - position of pixel you want to change. values 0 - 31 or 0 - 63
     /// \param mode - mode describes setting behavior. See WriteMode doc for more information
-    virtual void setPixel(int16_t x, int16_t y, WriteMode mode = WriteMode::ADD) = 0;
+    virtual void setPixel(const uint8_t x, const uint8_t y, const WriteMode mode = WriteMode::ADD) = 0;
 
     /// \brief Sends frame buffer to display so that it updated
     virtual void sendBuffer() = 0;
@@ -85,9 +83,9 @@ public:
     /// \param image_height - height of the image in pixels
     /// \param image - pointer to uint8_t (unsigned char) array containing image data
     /// \param mode - mode describes setting behavior. See WriteMode doc for more information
-    inline void addBitmapImage(int16_t anchorX, int16_t anchorY, uint8_t image_width, uint8_t image_height, uint8_t* image, WriteMode mode = WriteMode::ADD)
+    inline void addBitmapImage(const uint8_t anchorX, const uint8_t anchorY, const uint8_t image_width, const uint8_t image_height, const uint8_t* image, const WriteMode mode = WriteMode::ADD)
     {
-        uint8_t byte;
+        uint8_t byte { 0x00 };
         // goes over every single bit in image and sets pixel data on its coordinates
         for (uint8_t y = 0; y < image_height; y++) {
             for (uint8_t x = 0; x < image_width / 8; x++) {
@@ -103,9 +101,10 @@ public:
 
     /// \brief Manually set frame buffer. make sure it's correct size of 1024 bytes
     /// \param buffer - pointer to a new buffer
-    inline void setBuffer(unsigned char* buffer)
+    inline void setBuffer(const uint8_t* buffer, const size_t bufferSz)
     {
-        this->frameBuffer->setBuffer(buffer);
+        if (bufferSz != 1024) return;
+        this->frameBuffer->setBuffer(buffer, bufferSz);
     }
 
     /// \brief Flips the display
@@ -123,7 +122,7 @@ public:
 
     /// \brief Sets display contrast according to ssd1306 documentation
     /// \param contrast - accepted values of 0 to 255 to set the contrast
-    virtual void setContrast(unsigned char contrast) = 0;
+    virtual void setContrast(const uint8_t contrast) = 0;
 };
 
 }

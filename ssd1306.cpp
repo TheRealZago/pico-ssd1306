@@ -3,11 +3,11 @@
 #define SSD1306_FULL_BUFFER 1024
 
 namespace pico_oled {
-SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
+SSD1306::SSD1306(i2c_inst* i2CInst, uint8_t Address, Size size)
     : OLED::OLED(i2CInst, Address, Type::SSD1306, size)
 {
     // create a frame buffer
-    this->frameBuffer = new FrameBuffer(SSD1306_FULL_BUFFER);
+    this->frameBuffer = std::make_unique<FrameBuffer>(SSD1306_FULL_BUFFER);
 
     // this is a list of setup commands for the display
     uint8_t setup[] = {
@@ -50,7 +50,7 @@ SSD1306::SSD1306(i2c_inst* i2CInst, uint16_t Address, Size size)
     };
 
     // send each one of the setup commands
-    for (uint8_t& command : setup) {
+    for (const uint8_t& command : setup) {
         this->cmd(command);
     }
 
@@ -69,34 +69,35 @@ bool SSD1306::IsConnected() {
     return true;
 }
 
-void SSD1306::setPixel(int16_t x, int16_t y, WriteMode mode)
+void SSD1306::setPixel(const uint8_t x, const uint8_t y, const WriteMode mode)
 {
     // return if position out of bounds
-    if ((x < 0) || (x >= this->width) || (y < 0) || (y >= this->height))
+    if (x >= this->width || y >= this->height)
         return;
 
     // byte to be used for buffer operation
-    uint8_t byte;
+    uint8_t byte { 0x00 };
+    uint8_t workY { y };
 
     // display with 32 px height requires doubling of set bits, reason to this is explained in readme
     // this shifts 1 to byte based on y coordinate
     // remember that buffer is a one dimension array, so we have to calculate offset from coordinates
     if (size == Size::W128xH32) {
-        y = (y << 1) + 1;
-        byte = 1 << (y & 7);
-        char byte_offset = byte >> 1;
+        workY = static_cast<uint8_t>((workY << 1) + 1U);
+        byte = static_cast<uint8_t>(1U << (workY & 7));
+        uint8_t byte_offset = byte >> 1;
         byte = byte | byte_offset;
     } else {
-        byte = 1 << (y & 7);
+        byte = static_cast<uint8_t>(1U << (workY & 7));
     }
 
     // check the write mode and manipulate the frame buffer
     if (mode == WriteMode::ADD) {
-        this->frameBuffer->byteOR(x + (y / 8) * this->width, byte);
+        this->frameBuffer->byteOR(x + (workY / 8) * this->width, byte);
     } else if (mode == WriteMode::SUBTRACT) {
-        this->frameBuffer->byteAND(x + (y / 8) * this->width, ~byte);
+        this->frameBuffer->byteAND(x + (workY / 8) * this->width, ~byte);
     } else if (mode == WriteMode::INVERT) {
-        this->frameBuffer->byteXOR(x + (y / 8) * this->width, byte);
+        this->frameBuffer->byteXOR(x + (workY / 8) * this->width, byte);
     }
 }
 
@@ -139,7 +140,7 @@ void SSD1306::invertDisplay()
     inverted = !inverted;
 }
 
-void SSD1306::cmd(uint8_t command)
+void SSD1306::cmd(const uint8_t& command)
 {
     // 0x00 is a byte indicating to ssd1306 that a command is being sent
     uint8_t data[2] = { 0x00, command };
