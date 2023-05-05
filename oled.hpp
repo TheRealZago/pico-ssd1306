@@ -83,7 +83,7 @@ public:
     /// \param image_height - height of the image in pixels
     /// \param image - pointer to uint8_t (unsigned char) array containing image data
     /// \param mode - mode describes setting behavior. See WriteMode doc for more information
-    inline void addBitmapImage(const uint8_t anchorX, const uint8_t anchorY, const uint8_t image_width, const uint8_t image_height, const uint8_t* image, const WriteMode mode = WriteMode::ADD)
+    inline void addBitmapImage(const int16_t anchorX, const int16_t anchorY, const uint8_t image_width, const uint8_t image_height, const uint8_t* image, const WriteMode mode = WriteMode::ADD)
     {
         uint8_t byte { 0x00 };
         // goes over every single bit in image and sets pixel data on its coordinates
@@ -92,7 +92,12 @@ public:
                 byte = image[y * (image_width / 8) + x];
                 for (uint8_t z = 0; z < 8; z++) {
                     if ((byte >> (7 - z)) & 1) {
-                        this->setPixel(x * 8 + z + anchorX, y + anchorY, mode);
+                        int16_t xCoord = x * 8 + z + anchorX;
+                        int16_t yCoord = y + anchorY;
+                        if (xCoord >= 0 && xCoord < width
+                            && yCoord >= 0 && yCoord < height) {
+                            this->setPixel(static_cast<uint8_t>(xCoord), static_cast<uint8_t>(yCoord), mode);
+                        }
                     }
                 }
             }
